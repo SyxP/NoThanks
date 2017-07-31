@@ -8,9 +8,8 @@ public class Player{
     protected int chipCount;
     protected ArrayList<Integer> cardList;
 
-    public Player(String s, long id){
+    public Player(String s){
         setName(s);
-        setID(id);
         setChips(11);
         cardList = new ArrayList<Integer>();
     }
