@@ -42,7 +42,7 @@ public class DeckList{
         return deckList.get(getDeckSize() - 1);
     }
 
-    public int getCounter(){
+    public int getChips(){
         return Counters;
     }
 
