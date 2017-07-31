@@ -5,7 +5,7 @@ import java.lang.StringBuilder;
 
 public class Player{
     String Name;
-    long user_ID;
+    long ID;
     int chipCount;
     ArrayList<Integer> cardList;
 
@@ -21,7 +21,7 @@ public class Player{
     }
 
     private void setID(long id){
-        user_ID = id;
+        ID = id;
     }
 
     public void setChips(int i){
@@ -61,7 +61,7 @@ public class Player{
     }
 
     public long getID(){
-        return user_ID;
+        return ID;
     }
 
     public int getChips(){
