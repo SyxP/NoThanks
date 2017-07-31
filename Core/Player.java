@@ -4,10 +4,9 @@ import java.util.ArrayList;
 import java.lang.StringBuilder;
 
 public class Player{
-    String Name;
-    long ID;
-    int chipCount;
-    ArrayList<Integer> cardList;
+    protected String Name;
+    protected int chipCount;
+    protected ArrayList<Integer> cardList;
 
     public Player(String s, long id){
         setName(s);
@@ -18,10 +17,6 @@ public class Player{
 
     private void setName(String s){
         Name = s;
-    }
-
-    private void setID(long id){
-        ID = id;
     }
 
     public void setChips(int i){
@@ -58,10 +53,6 @@ public class Player{
 
     public String getName(){
         return Name;
-    }
-
-    public long getID(){
-        return ID;
     }
 
     public int getChips(){
