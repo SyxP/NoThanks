@@ -49,12 +49,8 @@ public class DeckList{
     @Override
     public String toString(){
         StringBuilder Info = new StringBuilder();
-        Info.append("[");
-        for(int i = getDeckSize() - 1; i >= 0; i--){
-            Info.append(deckList.get(i));
-            if(i != 0) Info.append(",");
-        }
-        Info.append("]");
+        Info.append("The current card is " + getCard() + " with " + getChips() + " chip(s) on it.\n");
+        Info.append("There are " + getDeckSize() + " cards left in the deck.\n");
         return Info.toString();
     }
 }
