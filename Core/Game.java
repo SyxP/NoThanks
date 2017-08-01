@@ -22,7 +22,10 @@ public class Game{
     }
 
     public void addPlayer(Player P){
-        //Consider what happens when you try to add a player to a game which already started
+        if(gameStarted == true){
+            System.out.println("Unable to add player. Game has started.");
+            return;
+        }
         //Consider what happens when you try to add a player with the same name
         playerList.add(P);
     }
@@ -53,6 +56,10 @@ public class Game{
     }
 
     public void take(){
+        if(gameStarted == false){
+            System.out.println("Unable to Pass. Game has not started.");
+            return;
+        }
         Player p = currPlayer();
         p.gainCard(deckList.getCard());
         p.incrementChips(getChips());
@@ -60,6 +67,10 @@ public class Game{
     }
 
     public void pass(){
+        if(gameStarted == false){
+            System.out.println("Unable to Pass. Game has not started.");
+            return;
+        }
         Player p = currPlayer();
         p.decrementChips();
         deckList.addChip();
@@ -74,8 +85,6 @@ public class Game{
         return Info.toString();
     }
 
-    //Code Winning Player Display + End Game/Reset Game(?)
-
     public boolean gameOver(){
         return deckList.getDeckSize() == 0;
     }
@@ -85,5 +94,37 @@ public class Game{
         deckList = new DeckList();
         Collections.shuffle(playerList);
         for(Player p : playerList) p.setChips(11);
+    }
+
+    private ArrayList<Player> winner(){
+        ArrayList<Player> winPlayers = new ArrayList<Player>();
+        for(Player p : playerList){
+            if(!winPlayers.empty() && winPlayers.get(0).getScore() < p.getScore()){
+                winPlayers.clear();
+            }
+            if(!winPlayers.empty() && !(winPlayers.get(0).getScore() > p.getScore())){
+                winPlayers.add(p);
+            }
+        }
+
+        retirm winPlayers;
+    }
+
+    public String getWinStatus(){ //Also Ends the current Game
+        gameStarted = false;
+        StringBuilder Info = new StringBuilder();
+        Info.append("<b>Score</b>\n\n");
+        for(Player p : playerList){
+            Info.append(p.getName() + ": " + p.getScore() + " points.\n");
+        }
+        ArrayList<Players> winPlayers = winner();
+        if(winPlayers.size() == 1){
+            Info.append("\n\n<b>" + p.getName() + "</b> won with " + p.score() + " points.");
+        }else{
+            Info.append("The following players ");
+            for(Player p : winPlayers) Info.append(p.getName() + " ");
+            Info.append("</b> have won win " + p.score() + " points.");
+        }
+        Info.append(" \n\nPlay a /new game?");
     }
 }
