@@ -126,5 +126,6 @@ public class Game{
             Info.append("</b> have won win " + p.score() + " points.");
         }
         Info.append(" \n\nPlay a /new game?");
+        return Info.toString();
     }
 }
