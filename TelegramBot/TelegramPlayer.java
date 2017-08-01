@@ -1,4 +1,4 @@
-package Telegram;
+package TelegramBot;
 
 public class TelegramPlayer extends Player{
     private long chat_ID;
