@@ -4,10 +4,10 @@ import java.util.ArrayList;
 import java.lang.StringBuilder;
 
 public class Game{
-    private ArrayList<Player> playerList;
-    private DeckList deckList;
-    private int currPlayerTurn;
-    private boolean gameStarted;
+    protected ArrayList<Player> playerList;
+    protected DeckList deckList;
+    protected int currPlayerTurn;
+    protected boolean gameStarted;
 
     public Game(){
         playerList = new ArrayList<Player>();
