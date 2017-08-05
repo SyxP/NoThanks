@@ -57,7 +57,11 @@ public class TelegramBot extends TelegramLongPollingBot{
         }
     }
 
-    public EditMessageText editMessage(String text, long chat_ID,  long message_ID, boolean type, boolean bankrupted){
+    public EditMessageText editMessage(String text, long chat_ID, long message_ID){
+        return editMessage(text, chat_ID, message_ID, false, false);
+    }
+
+    public EditMessageText editMessage(String text, long chat_ID, long message_ID, boolean type, boolean bankrupted){
         EditMessageText edited = new EditMessageText();
         edited.setChatId(chat_ID);
         edited.setMessageId(Math.toIntExact(message_ID));
@@ -100,11 +104,23 @@ public class TelegramBot extends TelegramLongPollingBot{
     }
 
     private void sendHello(long chat_ID){
-        sendMessage( "Hi there! I'm @No_Thanks_Bot, and I moderate games of <b>No Thanks!</b> To find out more about the game, use /help.", chat_ID, false);
+        sendMessage( "Hi there! I'm @No_Thanks_Bot, and I moderate games of <b>No Thanks!</b> To find out more about the game, use /help.", chat_ID);
     }
 
     private void sendHelp(long chat_ID){
-        sendMessage( "No Thanks! is a simple game for 3-5 players. \n\n<b>Setup</b>\nThe deck is numbered 3 to 35, and 9 cards are removed randomly at the start. Each player begins with 11 chips. \n\n<b>Gameplay</b>\nThe first player reveals the top card and either takes it or passes on the card by playing a chip (on the card). \n\nIf a player takes a card, he also gains all the chips on it. The same player then reveals the next card and decides if he wants it. Play goes around in a pre-determined order and continues until the deck runs out. \n\n<b>Scoring</b>\nCards give points according to their value, but cards in a row only score with the lowest value (e.g. 29, 28, 27 count as 27 points.) Chips are worth -1 point each. The player with the lowest points wins.", chat_ID, false);
+        sendMessage( "No Thanks! is a simple game for 3-5 players. \n\n<b>Setup</b>\nThe deck is numbered 3 to 35, and 9 cards are removed randomly at the start. Each player begins with 11 chips. \n\n<b>Gameplay</b>\nThe first player reveals the top card and either takes it or passes on the card by playing a chip (on the card). \n\nIf a player takes a card, he also gains all the chips on it. The same player then reveals the next card and decides if he wants it. Play goes around in a pre-determined order and continues until the deck runs out. \n\n<b>Scoring</b>\nCards give points according to their value, but cards in a row only score with the lowest value (e.g. 29, 28, 27 count as 27 points.) Chips are worth -1 point each. The player with the lowest points wins.", chat_ID);
+    }
+
+    private void notify(String s){
+        if(DebugMode) System.out.println(s);
+    }
+
+    private void noSuchGame(boolean isGroup, long chat_ID){
+        if(isGroup){
+            sendMessage("Not found. Start a /new game.", chat_id);
+        }else{
+            sendMessage("Start a game in a group chat.", chat_id);
+        }
     }
 
     private void newGame(Chat c, User u){
@@ -122,16 +138,40 @@ public class TelegramBot extends TelegramLongPollingBot{
                 //No games in progress
                 TelegramGame game = new TelegramGame(c.getChatID());
                 gameList.add(game);
-                sendMessage("A new game has been started by <b>" + u.getFirstName() + "</b>, /join now!", c.getChatID(), false, false);
+                sendMessage("A new game has been started by <b>" + u.getFirstName() + "</b>, /join now!", c.getChatID());
                 game.addPlayer(new TelegramPlayer(u.getFirstName(), u.getID()));
             } else {
                 //Have games in progress
-                sendMessage("There is already a game in progress, /join now or wait for the next round.", c.getChatID(), false, false);
+                sendMessage("There is already a game in progress, /join now or wait for the next round.", c.getChatID());
             }
         } else {
             //Ensures that it is played only in a group.
-            sendMessage("Please play No Thanks! in a group.", c.getChatID(), false, false);
+            sendMessage("Please play No Thanks! in a group.", c.getChatID());
         }
+    }
+
+    private void beginGame(long chat_ID, String StartName){
+         TelegramGame game = getGame(chat_ID);
+         if(game != null){
+             if(game.hasStarted()){
+                 sendMessage("Game has already begun.", chat_ID);
+             }else if(!game.inGame(StartName)){
+                 sendMessage("Only players can /begin the game.", chat_ID);
+             }else{
+                 int minPlayers = 1;
+                 int playerCount = game.getNumPlayers();
+                 if(playerCount < MinPlayers){
+                     sendMessage(playerCount + " player(s), min " + minPlayers + ". Not enough to begin a game.", chat_id);
+                 }else{
+                     //Starts Game
+                     sendMessage("Game with " + playerCount + " players is starting.", chat_ID);
+                     game.start();
+                     sendMessage(game.getStatus(), chat_ID, true, false);
+                 }
+             }
+         }else{
+             noSuchGame(isGroup(c),chat_ID);
+         }
     }
 
     @Override
@@ -152,7 +192,7 @@ public class TelegramBot extends TelegramLongPollingBot{
 
             String command = m.getText();
 
-            if(DebugMode) System.out.println( Name + "(" + chat_ID + "): " + command);
+            notify( Name + "(" + chat_ID + "): " + command);
 
             switch(command){
             case "/start":
@@ -167,7 +207,7 @@ public class TelegramBot extends TelegramLongPollingBot{
 
             case "/new":
             case "/new@No_Thanks_Bot":
-                newGame(c);
+                newGame(c,u);
                 break;
 
             case "/join":
@@ -178,14 +218,71 @@ public class TelegramBot extends TelegramLongPollingBot{
 
             case "/begin":
             case "/begin@No_Thanks_Bot":
+                beginGame(chat_ID, Name);
+                break;
 
             case "/abort":
             case "/abort@No_Thanks_Bot":
+                //TODO
 
             default:
-                if (DebugMode) System.out.println("Unknown Command.");
+                notify("Unknown Command: " + command + ".");
             }
         }else if(update.hasCallbackQuery()){
-            //TODO
+            CallbackQuery cbq = update.getCallbackQuery();
+            String call_data = cbq.getData();
+            m = cbq.getMessage();
+            u = cbq.getFrom();
+            chat_ID = m.getChatId();
+            msg_ID = m.getMessageId();
+            Name = u.getFirstName();
+            user_ID = u.getId();
+
+            //Identify Game
+            TelegramGame game = getGame(chat_ID);
+
+            notify( "[Inline] " + firstname + ": " + call_data + "  Message_id: " + message_id );
+            if(game == null){
+                //No Game in Play
+                notify("No Game In Play.");
+            }else if(game.getMsgID() != msg_ID){
+                //Callback Query from previous game.
+                notify("Callback Query from Previous Games.");
+            }else if(!game.hasStarted()){
+                notify("Game Currently in Join Stage.");
+            }else if(game.getCurrentPlayer().getID() != user_ID){
+                //Player pressing Button not Current
+                sendMessage("It is not your turn.", user_id);
+            }else{
+                //Current Player
+                switch(call_data){
+                case "/take":
+                    game.take(); break;
+                case "/no":
+                    game.pass(); break;
+                default:
+                    notify("Error.");
+                }
+                //Check if game has ended.
+                if(game.gameOver()){
+                    try{
+                        editMessageText(editMessage(game.getWinStatus(), chat_ID, message_ID));
+                        gameList.remove(game);
+                    }catch(TelegramApiException e){
+                        notify("Edit Message Failed.");
+                        e.printStackTrace();
+                    }
+                }else{
+                    //Update Game
+                    try{
+                        editMessageText(editMessage(game.getStatus(), chat_ID, message_ID));
+                        gameList.remove(game);
+                    }catch(TelegramApiException e){
+                        notify("Edit Message Failed.");
+                        e.printStackTrace();
+                    }
+                }
+            }
         }
     }
+}
