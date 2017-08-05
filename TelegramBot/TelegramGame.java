@@ -1,9 +1,9 @@
 package TelegramBot;
 
-import Core.*
+import Core.*;
 
 public class TelegramGame extends Game{
-    private long chat_ID,msg_ID;
+    private long chat_ID, msg_ID;
     public TelegramGame(long ID){
         super();
         chat_ID = ID;
