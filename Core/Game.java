@@ -1,6 +1,7 @@
 package Core;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.lang.StringBuilder;
 
 public class Game{
@@ -12,13 +13,13 @@ public class Game{
     public Game(){
         playerList = new ArrayList<Player>();
         deckList = new DeckList();
-        currPlayer = 0;
+        currPlayerTurn = 0;
         gameStarted = false;
     }
 
     private void incrementPlayer(){
         currPlayerTurn++;
-        if(currPlayer == getNumPlayers()) currPlayerTurn = 0;
+        if(currPlayerTurn == getNumPlayers()) currPlayerTurn = 0;
     }
 
     public boolean inGame(String s){
@@ -69,8 +70,8 @@ public class Game{
         }
         Player p = currPlayer();
         p.gainCard(deckList.getCard());
-        p.incrementChips(getChips());
-        p.removeCard();
+        p.incrementChips(deckList.getChips());
+        deckList.removeCard();
     }
 
     public void pass(){
@@ -106,15 +107,14 @@ public class Game{
     private ArrayList<Player> winner(){
         ArrayList<Player> winPlayers = new ArrayList<Player>();
         for(Player p : playerList){
-            if(!winPlayers.empty() && winPlayers.get(0).getScore() < p.getScore()){
+            if(!winPlayers.isEmpty() && winPlayers.get(0).getScore() < p.getScore()){
                 winPlayers.clear();
             }
-            if(!winPlayers.empty() && !(winPlayers.get(0).getScore() > p.getScore())){
+            if(!winPlayers.isEmpty() && !(winPlayers.get(0).getScore() > p.getScore())){
                 winPlayers.add(p);
             }
         }
-
-        retirm winPlayers;
+        return winPlayers;
     }
 
     public String getWinStatus(){ //Also Ends the current Game
@@ -124,14 +124,15 @@ public class Game{
         for(Player p : playerList){
             Info.append(p.getName() + ": " + p.getScore() + " points.\n");
         }
-        ArrayList<Players> winPlayers = winner();
+        ArrayList<Player> winPlayers = winner();
         if(winPlayers.size() == 1){
-            Info.append("\n\n<b>" + p.getName() + "</b> won with " + p.score() + " points.");
+            Info.append("\n\n<b>" + winPlayers.get(0).getName() + "</b> won with " + winPlayers.get(0).getScore() + " points.");
         }else{
             Info.append("The following players ");
             for(Player p : winPlayers) Info.append(p.getName() + " ");
-            Info.append("</b> have won win " + p.score() + " points.");
+            Info.append("</b> have won win " + winPlayers.get(0).getScore() + " points.");
         }
         Info.append(" \n\nPlay a /new game?");
+        return Info.toString();
     }
 }
