@@ -1,5 +1,7 @@
 package TelegramBot;
 
+import Core.Player;
+
 public class TelegramPlayer extends Player{
     private long chat_ID;
 
