@@ -21,6 +21,13 @@ public class Game{
         if(currPlayer == getNumPlayers()) currPlayerTurn = 0;
     }
 
+    public boolean inGame(String s){
+        for(Player p : playerList){
+            if(p.getName().equals(s)) return true;
+        }
+        return false;
+    }
+
     public void addPlayer(Player P){
         if(gameStarted == true){
             System.out.println("Unable to add player. Game has started.");
@@ -126,6 +133,5 @@ public class Game{
             Info.append("</b> have won win " + p.score() + " points.");
         }
         Info.append(" \n\nPlay a /new game?");
-        return Info.toString();
     }
 }
