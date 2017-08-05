@@ -20,7 +20,7 @@ public class TelegramBot extends TelegramLongPollingBot{
     private ArrayList<TelegramGame> gameList;
     private boolean DebugMode = false;
 
-    public NoThanks(){
+    public TelegramBot(){
         super();
         gameList = new ArrayList<TelegramGame>();
     }
